@@ -1,0 +1,29 @@
+{
+  "guilds": ["1537763743851880489"],
+  "roleArrays": {
+    "moderator": [],
+    "admin": []
+  },
+  "channels": {
+    "welcome": "",
+    "leave": "",
+    "sessions": "",
+    "ticketPanel": "",
+    "stashLog": "",
+    "modLog": ""
+  },
+  "images": {
+    "banner": "",
+    "welcome": ""
+  },
+  "autorole": "",
+  "chosenRole": "",
+  "stats": {
+    "members": "",
+    "chosen": ""
+  },
+  "ticketCategory": "",
+  "session": {
+    "voteQuorum": 6
+  }
+}

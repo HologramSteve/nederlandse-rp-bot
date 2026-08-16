@@ -1,12 +1,13 @@
 import { type ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import type { Command } from "../../types/Command.js";
+import type { ClientContext } from "../client/ClientContext.js";
 
 export const ping: Command = {
   data: new SlashCommandBuilder()
     .setName("ping")
     .setDescription("Antwoord met pong en toont de latency."),
 
-  async execute(interaction: ChatInputCommandInteraction) {
+  async execute(interaction: ChatInputCommandInteraction, _ctx: ClientContext) {
     const sent = await interaction.reply({
       content: "🏓 Pong!",
       fetchReply: true,

@@ -1,8 +1,11 @@
-import { Client, type ClientOptions, GatewayIntentBits } from "discord.js";
+import { Client, type ClientOptions, Events, GatewayIntentBits } from "discord.js";
+import type { BotConfig } from "../../config/botConfig.js";
 import type { Env } from "../../config/env.js";
+import { StatsService } from "../../modules/stats/services/StatsService.js";
 import { openDatabase } from "../db/db.js";
 import { setupCommandHandler } from "../handlers/CommandHandler.js";
 import { registerEvents } from "../handlers/EventHandler.js";
+import { loadButtons } from "../loaders/loadButtons.js";
 import { loadCommands } from "../loaders/loadCommands.js";
 import { loadEvents } from "../loaders/loadEvents.js";
 import type { ClientContext } from "./ClientContext.js";
@@ -14,19 +17,43 @@ export function createClient(): Client {
       GatewayIntentBits.Guilds,
       GatewayIntentBits.GuildMessages,
       GatewayIntentBits.MessageContent,
+      GatewayIntentBits.GuildMembers,
     ],
   };
   return new Client(options);
 }
 
 /** Rijg config, db, loaders en handlers aan elkaar en retourneer de context. */
-export async function bootstrap(config: Env): Promise<ClientContext> {
+export async function bootstrap(env: Env, botConfig: BotConfig): Promise<ClientContext> {
   const client = createClient();
   const db = openDatabase();
-  const [commands, events] = await Promise.all([loadCommands(), loadEvents()]);
+  const [commands, buttons, events] = await Promise.all([
+    loadCommands(),
+    loadButtons(),
+    loadEvents(),
+  ]);
 
-  registerEvents(client, events);
-  setupCommandHandler({ config, client, db, commands });
+  const ctx: ClientContext = {
+    env,
+    botConfig,
+    client,
+    db,
+    commands,
+    buttons,
+    services: { stopAll() {} },
+  };
 
-  return { config, client, db, commands };
+  registerEvents(ctx, events);
+  setupCommandHandler(ctx);
+
+  // Stats-service starten zodra de client klaar is (clientReady is al geregistreerd).
+  const statsService = new StatsService(ctx);
+  client.once(Events.ClientReady, () => {
+    statsService.start();
+  });
+  ctx.services.stopAll = () => {
+    statsService.stop();
+  };
+
+  return ctx;
 }

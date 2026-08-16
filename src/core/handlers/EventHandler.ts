@@ -1,14 +1,15 @@
-import type { Client } from "discord.js";
 import type { Event } from "../../types/Event.js";
+import type { ClientContext } from "../client/ClientContext.js";
 import { logger } from "../utils/logger.js";
 
-/** Registreert alle geladen events op de client. */
-export function registerEvents(client: Client, events: Event[]): void {
+/** Registreert alle geladen events op de client, met de context als eerste argument. */
+export function registerEvents(ctx: ClientContext, events: Event[]): void {
+  const { client } = ctx;
   for (const event of events) {
     if (event.once) {
       client.once(event.name, (...args) => {
         Promise.resolve()
-          .then(() => event.execute(...args))
+          .then(() => event.execute(ctx, ...args))
           .catch((error: unknown) => {
             logger.error(`Fout in eenmalig event: ${event.name}`, error);
           });
@@ -16,7 +17,7 @@ export function registerEvents(client: Client, events: Event[]): void {
     } else {
       client.on(event.name, (...args) => {
         Promise.resolve()
-          .then(() => event.execute(...args))
+          .then(() => event.execute(ctx, ...args))
           .catch((error: unknown) => {
             logger.error(`Fout in event: ${event.name}`, error);
           });

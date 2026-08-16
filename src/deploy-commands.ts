@@ -1,5 +1,5 @@
 import { REST, Routes } from "discord.js";
-import { config } from "./config/index.js";
+import { env } from "./config/index.js";
 import { loadCommands } from "./core/loaders/loadCommands.js";
 import { logger } from "./core/utils/logger.js";
 
@@ -11,12 +11,12 @@ async function deploy(): Promise<void> {
     "Registreer " +
       commandJson.length +
       " slash-commando's voor guild " +
-      config.guildId +
+      env.guildId +
       "...",
   );
 
-  const rest = new REST().setToken(config.token);
-  await rest.put(Routes.applicationGuildCommands(config.clientId, config.guildId), {
+  const rest = new REST().setToken(env.token);
+  await rest.put(Routes.applicationGuildCommands(env.clientId, env.guildId), {
     body: commandJson,
   });
 

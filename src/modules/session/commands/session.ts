@@ -1,0 +1,140 @@
+import {
+  ChannelType,
+  type ChatInputCommandInteraction,
+  SlashCommandBuilder,
+} from "discord.js";
+import type { ClientContext } from "../../../core/client/ClientContext.js";
+import type { Command } from "../../../types/Command.js";
+import {
+  buildJoinRow,
+  buildStartEmbed,
+  buildStopEmbed,
+  buildVoteEmbed,
+} from "../embeds/sessionEmbeds.js";
+import { SessionRepository } from "../repositories/SessionRepository.js";
+
+const data = new SlashCommandBuilder()
+  .setName("session")
+  .setDescription("Sessie commando's (SSU)")
+  .addSubcommand((s) => s.setName("vote").setDescription("Zet een sessie-vote open"))
+  .addSubcommand((s) => s.setName("start").setDescription("Start een sessie"))
+  .addSubcommand((s) => s.setName("stop").setDescription("Stop een sessie"));
+
+export const session: Command = {
+  data,
+  guildOnly: true,
+  permissionLevel: "moderator",
+  toJSON() {
+    return data.toJSON();
+  },
+
+  async execute(interaction: ChatInputCommandInteraction, ctx: ClientContext) {
+    const sub = interaction.options.getSubcommand();
+    const repo = new SessionRepository(ctx.db);
+    const host = interaction.user;
+    const now = Date.now();
+
+    if (sub === "vote") {
+      // Sluit een eventueel open vote af en start direct? Nee: open vote aan.
+      const target = ctx.botConfig.channels.sessions
+        ? ctx.client.channels.cache.get(ctx.botConfig.channels.sessions)
+        : interaction.channel;
+      if (!target || target.type !== ChannelType.GuildText) {
+        await interaction.reply({
+          content: "Het sessiekanaal uit config.json is ongeldig.",
+          ephemeral: true,
+        });
+        return;
+      }
+
+      repo.updateState({
+        status: "vote_active",
+        host_id: host.id,
+        vote_message_id: null,
+      });
+      const votersCount = repo.getVoters().length;
+      const { embed, row } = buildVoteEmbed({
+        hostName: host.username,
+        hostId: host.id,
+        quorum: ctx.botConfig.session.voteQuorum,
+        voters: votersCount,
+        at: now,
+        config: ctx.botConfig,
+      });
+
+      const msg = await target.send({ embeds: [embed], components: [row] });
+      repo.updateState({ status: "vote_active", vote_message_id: msg.id });
+      await interaction.reply({
+        content: "Vote geopend! 🗳️",
+        ephemeral: true,
+      });
+      return;
+    }
+
+    if (sub === "start") {
+      const state = repo.getState();
+      const joinCode = state?.join_code ?? "12345";
+      const target = ctx.botConfig.channels.sessions
+        ? ctx.client.channels.cache.get(ctx.botConfig.channels.sessions)
+        : interaction.channel;
+      if (!target || target.type !== ChannelType.GuildText) {
+        await interaction.reply({
+          content: "Het sessiekanaal uit config.json is ongeldig.",
+          ephemeral: true,
+        });
+        return;
+      }
+
+      // Verwijder de eventueel open vote-embed.
+      if (state?.vote_message_id) {
+        try {
+          const m = await target.messages.fetch(state.vote_message_id);
+          await m.delete();
+        } catch {
+          /* negeren */
+        }
+      }
+
+      repo.updateState({
+        status: "active",
+        host_id: host.id,
+        started_at: now,
+        join_code: joinCode,
+      });
+      repo.clearVoters();
+
+      const embed = buildStartEmbed({
+        joinCode,
+        hostName: host.username,
+        hostId: host.id,
+        at: now,
+        config: ctx.botConfig,
+      });
+      await target.send({ embeds: [embed], components: [buildJoinRow(joinCode)] });
+      await interaction.reply({
+        content: "Sessie gestart! 🟢",
+        ephemeral: true,
+      });
+      return;
+    }
+
+    if (sub === "stop") {
+      repo.updateState({ status: "idle", started_at: null, vote_message_id: null });
+      repo.clearVoters();
+      const embed = buildStopEmbed({ hostName: host.username, at: now });
+      const target = ctx.botConfig.channels.sessions
+        ? ctx.client.channels.cache.get(ctx.botConfig.channels.sessions)
+        : interaction.channel;
+      if (target && target.type === ChannelType.GuildText) {
+        await target.send({ embeds: [embed] });
+      }
+      await interaction.reply({
+        content: "Sessie gestopt. 🔴",
+        ephemeral: true,
+      });
+      return;
+    }
+  },
+};
+
+export default session;

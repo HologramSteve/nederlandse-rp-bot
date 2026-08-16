@@ -1,20 +1,20 @@
 import { Database } from "bun:sqlite";
 import { mkdirSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { config } from "../../config/index.js";
+import { env } from "../../config/index.js";
 import { logger } from "../utils/logger.js";
 
 const MIGRATIONS_DIR = join(import.meta.dir, "migrations");
 
 /** Open de SQLite-database en draai eventuele openstaande migraties. */
 export function openDatabase(): Database {
-  const dir = dirname(config.dbPath);
+  const dir = dirname(env.dbPath);
   if (dir !== "." && dir !== "") {
     mkdirSync(dir, { recursive: true });
     logger.debug(`Databasemap verzekerd: ${dir}`);
   }
 
-  const db = new Database(config.dbPath);
+  const db = new Database(env.dbPath);
   db.exec("PRAGMA journal_mode = WAL;");
   db.exec("PRAGMA foreign_keys = ON;");
   runMigrations(db);
