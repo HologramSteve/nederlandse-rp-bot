@@ -14,7 +14,7 @@ export const onGuildMemberAdd: Event<typeof Events.GuildMemberAdd> = {
       try {
         await member.roles.add(config.autorole);
       } catch (error) {
-        logger.warn("Kon autorole niet toekennen aan " + member.user.tag, error);
+        logger.warn(`Kon autorole niet toekennen aan ${member.user.tag}`, error);
       }
     }
 
@@ -33,7 +33,7 @@ export const onGuildMemberAdd: Event<typeof Events.GuildMemberAdd> = {
       .setTimestamp();
 
     await channel.send({ embeds: [embed] });
-    logger.info("Nieuw lid: " + member.user.tag);
+    logger.info(`Nieuw lid: ${member.user.tag}`);
   },
 };
 

@@ -21,9 +21,13 @@ export interface BotConfig {
   };
   /** Rol die nieuwkomers automatisch krijgen. */
   autorole: string;
+  /** Het leden-doel dat de "Goal"-teller toont. */
+  memberGoal: number;
   stats: {
     /** Voicechannel waarvan de naam het (totale) ledenaantal toont. */
     members: string;
+    /** Voicechannel waarvan de naam het leden-doel toont. */
+    goal: string;
   };
   ticketCategory: string;
   session: {

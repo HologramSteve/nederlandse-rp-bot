@@ -17,8 +17,10 @@
     "welcome": ""
   },
   "autorole": "",
+  "memberGoal": 100,
   "stats": {
-    "members": ""
+    "members": "",
+    "goal": ""
   },
   "ticketCategory": "",
   "session": {

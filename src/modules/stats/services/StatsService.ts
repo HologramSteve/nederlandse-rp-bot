@@ -3,7 +3,7 @@ import { logger } from "../../../core/utils/logger.js";
 
 const REFRESH_MS = 60_000; // elke minuut
 
-/** Werkt de ledenteller bij in het "stats" voicechannel. */
+/** Werkt de stats-voicechannels bij: ledental (live) en leden-doel (config). */
 export class StatsService {
   private timer: ReturnType<typeof setInterval> | null = null;
   private readonly ctx: ClientContext;
@@ -25,7 +25,13 @@ export class StatsService {
       : undefined;
 
     if (config.stats.members && guild) {
-      await this.setChannelName(config.stats.members, `🟢 Leden: ${guild.memberCount}`);
+      await this.setChannelName(
+        config.stats.members,
+        `👤 | Members: ${guild.memberCount}`,
+      );
+    }
+    if (config.stats.goal) {
+      await this.setChannelName(config.stats.goal, `🌟 | Goal: ${config.memberGoal}`);
     }
   }
 
