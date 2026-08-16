@@ -5,24 +5,24 @@
     "admin": []
   },
   "channels": {
-    "welcome": "",
-    "leave": "",
-    "sessions": "",
-    "ticketPanel": "",
-    "stashLog": "",
-    "modLog": ""
+    "welcome": "1537763744388616224",
+    "leave": "1537763744388616224",
+    "sessions": "1537763744388616224",
+    "ticketPanel": "1537763744388616224",
+    "stashLog": "1537763744388616224",
+    "modLog": "1537763744388616224"
   },
   "images": {
     "banner": "",
     "welcome": ""
   },
-  "autorole": "",
-  "memberGoal": 100,
+  "autorole": "1538603539285409894",
+  "memberGoal": 10,
   "stats": {
     "members": "",
     "goal": ""
   },
-  "ticketCategory": "",
+  "ticketCategory": "1538603233348558958",
   "session": {
     "voteQuorum": 6
   }
