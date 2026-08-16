@@ -14,6 +14,8 @@ export interface BotConfig {
     ticketPanel: string;
     stashLog: string;
     modLog: string;
+    /** Kanaal waar /changelog de update-embeds plaatst. */
+    changelog: string;
   };
   images: {
     banner: string;

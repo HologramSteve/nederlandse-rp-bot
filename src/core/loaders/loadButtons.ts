@@ -13,22 +13,22 @@ export async function loadButtons(): Promise<Map<string, Button>> {
   const files = new Bun.Glob(pattern).scanSync({ cwd: ROOT, onlyFiles: true });
   const paths = [...files].filter((f) => !f.includes("/__tests__/"));
 
-  logger.debug("Button-bestanden gevonden: " + paths.length);
+  logger.debug(`Button-bestanden gevonden: ${paths.length}`);
   for (const rel of paths) {
     const abs = join(ROOT, rel);
     try {
       const mod = await import(pathToFileURL(abs).href);
       const button: Button | undefined = mod.default ?? mod.button;
       if (!button?.customId || !button.execute) {
-        logger.warn("Overgeslagen button zonder customId/execute: " + rel);
+        logger.warn(`Overgeslagen button zonder customId/execute: ${rel}`);
         continue;
       }
       if (buttons.has(button.customId)) {
-        logger.warn("Dubbele button customId, laatste wint: " + button.customId);
+        logger.warn(`Dubbele button customId, laatste wint: ${button.customId}`);
       }
       buttons.set(button.customId, button);
     } catch (error) {
-      logger.error("Kon button niet laden: " + rel, error);
+      logger.error(`Kon button niet laden: ${rel}`, error);
     }
   }
   return buttons;

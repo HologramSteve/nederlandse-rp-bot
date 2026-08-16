@@ -52,13 +52,13 @@ export class StatsService {
   ): VoiceBasedChannel | null {
     if (configId) {
       const ch = this.ctx.client.channels.cache.get(configId);
-      if (ch && ch.isVoiceBased()) return ch;
+      if (ch?.isVoiceBased()) return ch;
       logger.warn(`Stats-channel ${configId} niet gevonden; val terug op auto-detect.`);
     }
     const found = guild.channels.cache.find(
       (ch) => ch.isVoiceBased() && pattern.test(ch.name),
     );
-    if (found && found.isVoiceBased()) return found;
+    if (found?.isVoiceBased()) return found;
     logger.debug(`Geen stats-channel gevonden voor patroon: ${pattern}`);
     return null;
   }

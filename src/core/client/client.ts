@@ -8,6 +8,7 @@ import { registerEvents } from "../handlers/EventHandler.js";
 import { loadButtons } from "../loaders/loadButtons.js";
 import { loadCommands } from "../loaders/loadCommands.js";
 import { loadEvents } from "../loaders/loadEvents.js";
+import { loadSelectMenus } from "../loaders/loadSelectMenus.js";
 import type { ClientContext } from "./ClientContext.js";
 
 /** Maak de Discord-client aan met de benodigde intents. */
@@ -27,9 +28,10 @@ export function createClient(): Client {
 export async function bootstrap(env: Env, botConfig: BotConfig): Promise<ClientContext> {
   const client = createClient();
   const db = openDatabase();
-  const [commands, buttons, events] = await Promise.all([
+  const [commands, buttons, selectMenus, events] = await Promise.all([
     loadCommands(),
     loadButtons(),
+    loadSelectMenus(),
     loadEvents(),
   ]);
 
@@ -40,6 +42,7 @@ export async function bootstrap(env: Env, botConfig: BotConfig): Promise<ClientC
     db,
     commands,
     buttons,
+    selectMenus,
     services: { stopAll() {} },
   };
 

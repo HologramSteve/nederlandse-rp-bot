@@ -2,6 +2,7 @@ import {
   type ButtonInteraction,
   type ChatInputCommandInteraction,
   Events,
+  type StringSelectMenuInteraction,
 } from "discord.js";
 import { hasPermissionLevel } from "../../modules/moderation/guards.js";
 import type { ClientContext } from "../client/ClientContext.js";
@@ -19,6 +20,8 @@ export function setupCommandHandler(ctx: ClientContext): void {
       await handleCommand(interaction, ctx, cooldowns);
     } else if (interaction.isButton()) {
       await handleButton(interaction, ctx);
+    } else if (interaction.isStringSelectMenu()) {
+      await handleSelectMenu(interaction, ctx);
     }
   });
 }
@@ -92,6 +95,28 @@ async function handleCommand(
     } else {
       await interaction.reply({ content: message, ephemeral: true });
     }
+  }
+}
+
+async function handleSelectMenu(
+  interaction: StringSelectMenuInteraction,
+  ctx: ClientContext,
+): Promise<void> {
+  const selectMenu = ctx.selectMenus.get(interaction.customId);
+  if (!selectMenu) {
+    await interaction.reply({
+      content: "Dit selectmenu is verlopen of niet meer actief.",
+      ephemeral: true,
+    });
+    return;
+  }
+  try {
+    await selectMenu.execute(interaction, ctx);
+  } catch (error) {
+    logger.error(`Fout bij selectmenu: ${interaction.customId}`, error);
+    await interaction
+      .reply({ content: "Er ging iets mis.", ephemeral: true })
+      .catch(() => undefined);
   }
 }
 

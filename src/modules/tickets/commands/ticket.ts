@@ -1,15 +1,28 @@
-import { type ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
+import {
+  ActionRowBuilder,
+  type ChatInputCommandInteraction,
+  EmbedBuilder,
+  SlashCommandBuilder,
+  StringSelectMenuBuilder,
+} from "discord.js";
 import type { ClientContext } from "../../../core/client/ClientContext.js";
 import { logger } from "../../../core/utils/logger.js";
 import type { Command } from "../../../types/Command.js";
 import { TicketRepository } from "../repositories/TicketRepository.js";
+import { TICKET_TYPES } from "../selects/ticket-select.js";
+
+const BLUE = 0x0099ff;
 
 const data = new SlashCommandBuilder()
   .setName("ticket")
   .setDescription("Ticket commando's")
+  .addSubcommand((s) =>
+    s
+      .setName("panel")
+      .setDescription("Plaats het ticket-dashboard in het ingestelde kanaal"),
+  )
   .addSubcommand((s) => s.setName("claim").setDescription("Claim dit ticket"))
-  .addSubcommand((s) => s.setName("close").setDescription("Sluit dit ticket"))
-  .addSubcommand((s) => s.setName("open").setDescription("Open een ticket"));
+  .addSubcommand((s) => s.setName("close").setDescription("Sluit dit ticket"));
 
 export const ticket: Command = {
   data,
@@ -23,17 +36,50 @@ export const ticket: Command = {
     const sub = interaction.options.getSubcommand();
     const repo = new TicketRepository(ctx.db);
 
-    if (sub === "open") {
-      const existing = repo.findOpenByOwner(interaction.user.id);
-      if (existing) {
+    if (sub === "panel") {
+      const channelId = ctx.botConfig.channels.ticketPanel;
+      if (!channelId) {
         await interaction.reply({
-          content: `Je hebt al een open ticket: <#${existing.channel_id}>`,
+          content: "Geen ticket-paneel-kanaal ingesteld (config.json).",
           ephemeral: true,
         });
         return;
       }
+      const target = ctx.client.channels.cache.get(channelId);
+      if (!target || !("send" in target) || typeof target.send !== "function") {
+        await interaction.reply({
+          content: "Het ticket-paneel-kanaal is niet gevonden.",
+          ephemeral: true,
+        });
+        return;
+      }
+
+      const embed = new EmbedBuilder()
+        .setColor(BLUE)
+        .setTitle("🎫 Ticket-dashboard")
+        .setDescription(
+          "Kies hieronder een optie om een ticket te openen. " +
+            "Een stafflid helpt je zo snel mogelijk verder.",
+        )
+        .setFooter({ text: "Kies één optie uit het menu" })
+        .setTimestamp();
+
+      const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+        new StringSelectMenuBuilder()
+          .setCustomId("ticket-select")
+          .setPlaceholder("Kies een optie...")
+          .addOptions(
+            ...Object.entries(TICKET_TYPES).map(([value, info]) => ({
+              label: `${info.emoji} ${info.label}`,
+              value,
+              description: `Open een ${info.label.toLowerCase()}-ticket`,
+            })),
+          ),
+      );
+
+      await target.send({ embeds: [embed], components: [row] });
       await interaction.reply({
-        content: "Gebruik de ticket-knop in het ticket-paneel om een ticket te openen.",
+        content: `Ticket-dashboard geplaatst in <#${channelId}>.`,
         ephemeral: true,
       });
       return;

@@ -76,9 +76,7 @@ export const mod: Command = {
 
     if (sub === "kick") {
       // Vereist ECHTE Discord KickMembers-permissie, niet alleen een rol.
-      const hasDiscordPerm =
-        typeof member.permissions !== "undefined" &&
-        member.permissions.has(PermissionFlagsBits.KickMembers);
+      const hasDiscordPerm = member.permissions?.has(PermissionFlagsBits.KickMembers);
       if (!hasDiscordPerm) {
         await interaction.reply({
           content: "Je hebt de Discord-permissie KICK_MEMBERS niet; kick geweigerd.",

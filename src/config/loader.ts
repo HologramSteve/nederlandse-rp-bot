@@ -15,6 +15,7 @@ const DEFAULTS: BotConfig = {
     ticketPanel: "",
     stashLog: "",
     modLog: "",
+    changelog: "",
   },
   images: { banner: "", welcome: "" },
   autorole: "",

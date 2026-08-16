@@ -14,7 +14,7 @@ export const ssuVote: Button = {
     const repo = new SessionRepository(ctx.db);
     const state = repo.getState();
 
-    if (!state || state.status !== "vote_active") {
+    if (state?.status !== "vote_active") {
       await interaction.reply({
         content: "There is not an SSU vote active.",
         ephemeral: true,
