@@ -2,7 +2,6 @@ import type { Event } from "../../types/Event.js";
 import type { ClientContext } from "../client/ClientContext.js";
 import { logger } from "../utils/logger.js";
 
-/** Registreert alle geladen events op de client, met de context als eerste argument. */
 export function registerEvents(ctx: ClientContext, events: Event[]): void {
   const { client } = ctx;
   for (const event of events) {

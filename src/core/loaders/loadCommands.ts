@@ -5,7 +5,6 @@ import { logger } from "../utils/logger.js";
 
 const ROOT = join(import.meta.dir, "..", "..");
 
-/** Laadt alle slash-commando's uit de commands-mappen in een Map. */
 export async function loadCommands(): Promise<Map<string, Command>> {
   const commands = new Map<string, Command>();
   const pattern = "**/commands/*.ts";

@@ -7,15 +7,9 @@ import type { Command } from "../../types/Command.js";
 import type { SelectMenu } from "../../types/SelectMenu.js";
 import type { ServiceRegistry } from "./ServiceRegistry.js";
 
-/**
- * Bevat de gedeelde afhankelijkheden van de bot en wordt aan handlers
- * doorgegeven. Modules importeren deze nooit als singleton; ze ontvangen de
- * context via de handlers.
- */
 export interface ClientContext {
-  /** Noodzakelijke secrets (token, ids). */
   env: Env;
-  /** Niet-geheime instellingen (rollen, kanalen, images). */
+
   botConfig: BotConfig;
   client: Client;
   db: Database;

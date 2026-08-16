@@ -5,7 +5,6 @@ import { logger } from "../utils/logger.js";
 
 const ROOT = join(import.meta.dir, "..", "..");
 
-/** Laadt alle event-handlers uit de events-mappen in een lijst. */
 export async function loadEvents(): Promise<Event[]> {
   const events: Event[] = [];
   const pattern = "**/events/*.ts";

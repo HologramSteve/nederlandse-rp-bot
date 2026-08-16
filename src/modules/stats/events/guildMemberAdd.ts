@@ -4,13 +4,11 @@ import { logger } from "../../../core/utils/logger.js";
 import { buildWelcomeEmbed } from "../../../embeds.js";
 import type { Event } from "../../../types/Event.js";
 
-/** Welkom-embed + autorole bij een nieuwe aanmelding. */
 export const onGuildMemberAdd: Event<typeof Events.GuildMemberAdd> = {
   name: Events.GuildMemberAdd,
   async execute(ctx: ClientContext, member: GuildMember) {
     const config = ctx.botConfig;
 
-    // Autorole.
     if (config.autorole) {
       try {
         await member.roles.add(config.autorole);
@@ -19,7 +17,6 @@ export const onGuildMemberAdd: Event<typeof Events.GuildMemberAdd> = {
       }
     }
 
-    // Welkom-embed.
     const welcomeId = config.channels.welcome;
     if (!welcomeId) return;
     const channel = ctx.client.channels.cache.get(welcomeId);

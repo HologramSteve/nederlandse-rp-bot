@@ -5,7 +5,6 @@ import { logger } from "../utils/logger.js";
 
 const ROOT = join(import.meta.dir, "..", "..");
 
-/** Laadt alle button-handlers uit de buttons-mappen in een Map (keyed customId). */
 export async function loadButtons(): Promise<Map<string, Button>> {
   const buttons = new Map<string, Button>();
   const pattern = "**/buttons/*.ts";

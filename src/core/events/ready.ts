@@ -3,7 +3,6 @@ import type { Event } from "../../types/Event.js";
 import type { ClientContext } from "../client/ClientContext.js";
 import { logger } from "../utils/logger.js";
 
-/** Log de bot-bijnaam zodra hij online is. */
 export const onReady: Event<typeof Events.ClientReady> = {
   name: Events.ClientReady,
   once: true,

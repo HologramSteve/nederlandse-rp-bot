@@ -3,7 +3,6 @@ import type { ClientContext } from "../../../core/client/ClientContext.js";
 import { buildLeaveEmbed } from "../../../embeds.js";
 import type { Event } from "../../../types/Event.js";
 
-/** Vertrek-embed wanneer een lid de server verlaat. */
 export const onGuildMemberRemove: Event<typeof Events.GuildMemberRemove> = {
   name: Events.GuildMemberRemove,
   async execute(ctx: ClientContext, member: GuildMember) {

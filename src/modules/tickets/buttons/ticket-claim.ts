@@ -11,11 +11,6 @@ import { hasPermissionLevel } from "../../moderation/guards.js";
 import { TicketRepository } from "../repositories/TicketRepository.js";
 import { ticketTypeLabel } from "../selects/ticket-select.js";
 
-/**
- * Claim-knop op het ticket-openingsbericht: een stafflid neemt het ticket
- * over. De knop wordt daarna uitgeschakeld en de embed toont wie het
- * ticket geclaimd heeft.
- */
 export const ticketClaim: Button = {
   customId: "ticket-claim",
   async execute(interaction, ctx: ClientContext) {
@@ -67,7 +62,6 @@ export const ticketClaim: Button = {
     const now = Date.now();
     repo.claim(interaction.channelId, interaction.user.id);
 
-    // Toon de claim op het openingsbericht en schakel de claim-knop uit.
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setLabel("Geclaimd")

@@ -12,7 +12,6 @@ export interface Infraction {
   created_at: number;
 }
 
-/** Repository voor infracties (moderatie-log). */
 export class InfractionRepository {
   private readonly db: Database;
 
@@ -20,7 +19,6 @@ export class InfractionRepository {
     this.db = db;
   }
 
-  /** Retourneert het hoogste case-nummer + 1 (of 1 als er nog geen zijn). */
   nextCaseNo(): number {
     const row = this.db.query("SELECT MAX(case_no) AS max FROM infractions").get() as {
       max: number | null;

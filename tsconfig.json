@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
-    // Bun types
     "types": ["bun-types"],
-    // Enable latest features
+
     "lib": ["ESNext"],
     "target": "ESNext",
     "module": "ESNext",
@@ -16,7 +15,7 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    // Bundler compatibility
+
     "erasableSyntaxOnly": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,

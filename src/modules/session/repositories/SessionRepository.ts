@@ -16,7 +16,6 @@ export interface SessionVoter {
   user_id: string;
 }
 
-/** Repository voor sessie-state en sessie-stemmen (singleton-row model). */
 export class SessionRepository {
   private readonly db: Database;
 

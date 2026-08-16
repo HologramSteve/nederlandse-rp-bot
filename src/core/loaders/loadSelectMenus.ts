@@ -5,7 +5,6 @@ import { logger } from "../utils/logger.js";
 
 const ROOT = join(import.meta.dir, "..", "..");
 
-/** Laadt alle selectmenu-handlers uit de selects-mappen in een Map (keyed customId). */
 export async function loadSelectMenus(): Promise<Map<string, SelectMenu>> {
   const selectMenus = new Map<string, SelectMenu>();
   const pattern = "**/selects/*.ts";

@@ -62,7 +62,6 @@ export const mod: Command = {
       return;
     }
 
-    // Rol-array check (moderator/admin).
     if (
       !hasPermissionLevel(
         member as import("discord.js").GuildMember,
@@ -78,13 +77,11 @@ export const mod: Command = {
     }
 
     const resolved = interaction.options.getMember("target");
-    // Nieuwe interacties leveren een volwaardige GuildMember op in een guild;
-    // via "kickable" in resolved onderscheiden we die van de minimale variant.
+
     const target: GuildMember | null =
       resolved && "kickable" in resolved ? (resolved as GuildMember) : null;
 
     if (sub === "kick") {
-      // Vereist ECHTE Discord KickMembers-permissie, niet alleen een rol.
       const hasDiscordPerm = member.permissions?.has(PermissionFlagsBits.KickMembers);
       if (!hasDiscordPerm) {
         await interaction.reply({
@@ -172,9 +169,7 @@ export const mod: Command = {
             }),
           ],
         });
-      } catch {
-        /* DM gefaald; infractie is al gelogd */
-      }
+      } catch {}
       logger.info(`${interaction.user.tag} waarschuwde ${target.user.tag}: ${reason}`);
       return;
     }

@@ -13,7 +13,6 @@ export interface Ticket {
   closed_at: number | null;
 }
 
-/** Repository voor tickets. */
 export class TicketRepository {
   private readonly db: Database;
 

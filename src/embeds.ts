@@ -4,36 +4,24 @@ import type {
   InfractionType,
 } from "./modules/moderation/repositories/InfractionRepository.js";
 
-// ============================================================
-// ⚙️  INSTELLINGEN — pas hier gerust alles aan voor snelle dev
-// ============================================================
-
-/** Hoofdkleur van de meeste embeds (groen). */
 export const EMBED_COLOR = 0x00ff6f;
-/** Kleur voor succes-berichten (groen). */
+
 export const SUCCESS_COLOR = 0x00ff6f;
-/** Kleur voor waarschuwingen (geel). */
+
 export const WARNING_COLOR = 0xffcc00;
-/** Kleur voor foutmeldingen (rood). */
+
 export const ERROR_COLOR = 0xf11313;
-/** Kleur voor info-berichten (blauw). */
+
 export const INFO_COLOR = 0x0099ff;
-/** Kleur voor strikes (oranje). */
+
 export const STRIKE_COLOR = 0xffa500;
 
-/** Banner-afbeelding bovenaan de sessie-embeds (URL of leeg laten). */
 export const BANNER_URL = "";
-/** Afbeelding in de welkom-embed (URL of leeg laten). */
+
 export const WELCOME_IMAGE_URL = "";
 
-/** Voettekst die onder de algemene embeds verschijnt. */
 export const FOOTER_TEXT = "Dutch RP";
 
-// ------------------------------------------------------------
-// 💬 ALGEMEEN
-// ------------------------------------------------------------
-
-/** Algemene fout-embed (rood). */
 export function buildErrorEmbed(message: string): EmbedBuilder {
   return new EmbedBuilder()
     .setColor(ERROR_COLOR)
@@ -42,7 +30,6 @@ export function buildErrorEmbed(message: string): EmbedBuilder {
     .setTimestamp();
 }
 
-/** Algemene waarschuwing-embed (geel). */
 export function buildWarningEmbed(message: string): EmbedBuilder {
   return new EmbedBuilder()
     .setColor(WARNING_COLOR)
@@ -51,7 +38,6 @@ export function buildWarningEmbed(message: string): EmbedBuilder {
     .setTimestamp();
 }
 
-/** Algemene succes-embed (groen). */
 export function buildSuccessEmbed(message: string): EmbedBuilder {
   return new EmbedBuilder()
     .setColor(SUCCESS_COLOR)
@@ -60,7 +46,6 @@ export function buildSuccessEmbed(message: string): EmbedBuilder {
     .setTimestamp();
 }
 
-/** Algemene info-embed (blauw). */
 export function buildInfoEmbed(message: string): EmbedBuilder {
   return new EmbedBuilder()
     .setColor(INFO_COLOR)
@@ -69,11 +54,6 @@ export function buildInfoEmbed(message: string): EmbedBuilder {
     .setTimestamp();
 }
 
-// ------------------------------------------------------------
-// 🏓 CORE / PING
-// ------------------------------------------------------------
-
-/** De ping-embed met de gemeten latency. */
 export function buildPingEmbed(latencyMs: number): EmbedBuilder {
   return new EmbedBuilder()
     .setColor(EMBED_COLOR)
@@ -83,11 +63,6 @@ export function buildPingEmbed(latencyMs: number): EmbedBuilder {
     .setTimestamp();
 }
 
-// ------------------------------------------------------------
-// 👋 WELKOM / VERTREK
-// ------------------------------------------------------------
-
-/** Welkom-embed bij een nieuwe aanmelding. */
 export function buildWelcomeEmbed(opts: {
   memberId: string;
   memberCount: number;
@@ -101,7 +76,6 @@ export function buildWelcomeEmbed(opts: {
     .setTimestamp();
 }
 
-/** Vertrek-embed wanneer een lid de server verlaat. */
 export function buildLeaveEmbed(opts: { memberId: string }): EmbedBuilder {
   return new EmbedBuilder()
     .setColor(ERROR_COLOR)
@@ -111,11 +85,6 @@ export function buildLeaveEmbed(opts: { memberId: string }): EmbedBuilder {
     .setTimestamp();
 }
 
-// ------------------------------------------------------------
-// 🎮 SESSIES (SSU)
-// ------------------------------------------------------------
-
-/** Bouwt de "sessie gestart"-embed met join-code. */
 export function buildStartEmbed(opts: {
   joinCode: string;
   hostName: string;
@@ -138,7 +107,6 @@ export function buildStartEmbed(opts: {
     .setTimestamp();
 }
 
-/** Bouwt de join-knoprij (link naar de officiële join-pagina). */
 export function buildJoinRow(joinCode: string): ActionRowBuilder<ButtonBuilder> {
   return new ActionRowBuilder<ButtonBuilder>().addComponents(
     new ButtonBuilder()
@@ -148,7 +116,6 @@ export function buildJoinRow(joinCode: string): ActionRowBuilder<ButtonBuilder> 
   );
 }
 
-/** Bouwt de "SSU-vote"-embed met Stem- en Stemmers-knoppen. */
 export function buildVoteEmbed(opts: {
   hostName: string;
   hostId: string;
@@ -189,7 +156,6 @@ export function buildVoteEmbed(opts: {
   return { embed, row };
 }
 
-/** Bouwt de "sessie gestopt"-embed. */
 export function buildStopEmbed(opts: { hostName: string; at: number }): EmbedBuilder {
   return new EmbedBuilder()
     .setColor(ERROR_COLOR)
@@ -202,7 +168,6 @@ export function buildStopEmbed(opts: { hostName: string; at: number }): EmbedBui
     .setTimestamp();
 }
 
-/** Bouwt de "Stemmers"-embed met de lijst van stemmers. */
 export function buildVotersEmbed(voters: string[]): EmbedBuilder {
   return new EmbedBuilder()
     .setColor(INFO_COLOR)
@@ -213,10 +178,6 @@ export function buildVotersEmbed(voters: string[]): EmbedBuilder {
     .setFooter({ text: `${voters.length} stemmen` })
     .setTimestamp();
 }
-
-// ------------------------------------------------------------
-// 🛡️ MODERATIE
-// ------------------------------------------------------------
 
 const infractionColor: Record<InfractionType, number> = {
   strike: STRIKE_COLOR,
@@ -230,7 +191,6 @@ export const infractionLabel: Record<InfractionType, string> = {
   termination: "Termination",
 };
 
-/** Bouwt de mod-log embed voor een infractie/kick. */
 export function buildInfractionEmbed(infraction: Infraction): EmbedBuilder {
   return new EmbedBuilder()
     .setColor(infractionColor[infraction.type])
@@ -249,7 +209,6 @@ export function buildInfractionEmbed(infraction: Infraction): EmbedBuilder {
     .setTimestamp();
 }
 
-/** DM-embed die een gewaarschuwd lid ontvangt. */
 export function buildWarnDmEmbed(opts: {
   guildName: string;
   reason: string;
@@ -263,7 +222,6 @@ export function buildWarnDmEmbed(opts: {
     .setTimestamp();
 }
 
-/** Bevestiging dat iemand gekickt is. */
 export function buildKickSuccessEmbed(opts: {
   userTag: string;
   caseNo: number;
@@ -277,7 +235,6 @@ export function buildKickSuccessEmbed(opts: {
     .setTimestamp();
 }
 
-/** Bevestiging dat iemand gewaarschuwd is. */
 export function buildWarnSuccessEmbed(opts: {
   userTag: string;
   caseNo: number;
@@ -291,11 +248,6 @@ export function buildWarnSuccessEmbed(opts: {
     .setTimestamp();
 }
 
-// ------------------------------------------------------------
-// 🎫 TICKETS
-// ------------------------------------------------------------
-
-/** Bouwt het ticket-dashboard (paneel met het selectmenu). */
 export function buildTicketPanelEmbed(): EmbedBuilder {
   return new EmbedBuilder()
     .setColor(INFO_COLOR)
@@ -308,7 +260,6 @@ export function buildTicketPanelEmbed(): EmbedBuilder {
     .setTimestamp();
 }
 
-/** Bouwt de "Ticket geopend"-embed in het nieuwe ticket-kanaal. */
 export function buildTicketOpenedEmbed(opts: {
   typeLabel: string;
   ownerId: string;
@@ -337,7 +288,6 @@ export function buildTicketOpenedEmbed(opts: {
   return embed;
 }
 
-/** Bouwt de claim-bevestiging voor in het ticket-kanaal. */
 export function buildTicketClaimedEmbed(opts: { claimedById: string }): EmbedBuilder {
   return new EmbedBuilder()
     .setColor(INFO_COLOR)
@@ -347,7 +297,6 @@ export function buildTicketClaimedEmbed(opts: { claimedById: string }): EmbedBui
     .setTimestamp();
 }
 
-/** Bouwt de "ticket wordt gesloten"-bevestiging. */
 export function buildTicketClosingEmbed(): EmbedBuilder {
   return new EmbedBuilder()
     .setColor(ERROR_COLOR)
@@ -357,11 +306,6 @@ export function buildTicketClosingEmbed(): EmbedBuilder {
     .setTimestamp();
 }
 
-// ------------------------------------------------------------
-// 📢 CHANGELOG
-// ------------------------------------------------------------
-
-/** Bouwt de changelog-update embed (zoals een game-update). */
 export function buildChangelogEmbed(opts: {
   titel: string;
   tekst: string;

@@ -17,7 +17,6 @@ import {
 import type { SelectMenu } from "../../../types/SelectMenu.js";
 import { TicketRepository } from "../repositories/TicketRepository.js";
 
-/** De beschikbare ticket-typen uit het ticket-dashboard. */
 export const TICKET_TYPES = {
   management: { emoji: "📋", label: "Management" },
   application: { emoji: "📝", label: "Sollicitatie" },
@@ -27,17 +26,11 @@ export const TICKET_TYPES = {
 
 export type TicketType = keyof typeof TICKET_TYPES;
 
-/** Geef het leesbare Nederlandse label (met emoji) bij een ticket-type. */
 export function ticketTypeLabel(type: string): string {
   const entry = TICKET_TYPES[type as TicketType];
   return entry ? `${entry.emoji} ${entry.label}` : type;
 }
 
-/**
- * Opent een ticket op basis van de keuze uit het ticket-dashboard:
- * maakt een privékanaal onder de ticket-categorie met een openingsembed
- * inclusief Claim- en Sluiten-knoppen.
- */
 export const ticketSelect: SelectMenu = {
   customId: "ticket-select",
   async execute(interaction: StringSelectMenuInteraction, ctx: ClientContext) {
@@ -103,7 +96,6 @@ export const ticketSelect: SelectMenu = {
       topic: `${ticketTypeLabel(type)} ticket van <@${interaction.user.id}>`,
     });
 
-    // Permission overwrites: ontken @everyone, geef owner + bot toegang.
     await channel.permissionOverwrites.set([
       { id: guild.id, deny: [PermissionFlagsBits.ViewChannel] },
       {

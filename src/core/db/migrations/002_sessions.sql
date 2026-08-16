@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS session_state (
-  id INTEGER PRIMARY KEY CHECK (id = 1), -- singleton rij
-  status TEXT NOT NULL DEFAULT 'idle',    -- idle | vote_active | active
+  id INTEGER PRIMARY KEY CHECK (id = 1),
+  status TEXT NOT NULL DEFAULT 'idle',
   host_id TEXT,
   started_at INTEGER,
   join_code TEXT,
@@ -12,3 +12,4 @@ CREATE TABLE IF NOT EXISTS session_voters (
   user_id TEXT NOT NULL,
   PRIMARY KEY (session_id, user_id)
 );
+

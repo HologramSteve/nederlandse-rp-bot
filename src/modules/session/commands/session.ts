@@ -90,14 +90,11 @@ export const session: Command = {
         return;
       }
 
-      // Verwijder de eventueel open vote-embed.
       if (state?.vote_message_id) {
         try {
           const m = await target.messages.fetch(state.vote_message_id);
           await m.delete();
-        } catch {
-          /* negeren */
-        }
+        } catch {}
       }
 
       repo.updateState({

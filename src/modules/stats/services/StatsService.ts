@@ -2,13 +2,8 @@ import type { Guild, VoiceBasedChannel } from "discord.js";
 import type { ClientContext } from "../../../core/client/ClientContext.js";
 import { logger } from "../../../core/utils/logger.js";
 
-const REFRESH_MS = 60_000; // elke minuut
+const REFRESH_MS = 60_000;
 
-/**
- * Werkt de stats-voicechannels bij: ledental (live) en leden-doel (config).
- * Als er geen channel-ID in config staat, zoekt de service automatisch naar
- * voicechannels met "members" / "goal" in de naam.
- */
 export class StatsService {
   private timer: ReturnType<typeof setInterval> | null = null;
   private readonly ctx: ClientContext;
@@ -41,10 +36,6 @@ export class StatsService {
     }
   }
 
-  /**
-   * Gebruikt de geconfigureerde channel-ID als die er is; anders zoekt hij in
-   * de guild naar een voicechannel waarvan de naam aan het patroon voldoet.
-   */
   private resolveChannel(
     configId: string,
     guild: Guild,

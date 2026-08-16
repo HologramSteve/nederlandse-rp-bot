@@ -4,7 +4,6 @@ import { buildErrorEmbed, buildTicketClosingEmbed } from "../../../embeds.js";
 import type { Button } from "../../../types/Button.js";
 import { TicketRepository } from "../repositories/TicketRepository.js";
 
-/** Sluit het ticket-kanaal van de actieve interactie. */
 export const ticketClose: Button = {
   customId: "ticket-close",
   async execute(interaction, ctx: ClientContext) {
@@ -24,7 +23,6 @@ export const ticketClose: Button = {
       ephemeral: false,
     });
 
-    // Verwijder het kanaal na een korte pauze.
     setTimeout(() => {
       interaction.channel?.delete().catch(() => undefined);
     }, 1500);

@@ -6,7 +6,6 @@ import { logger } from "../utils/logger.js";
 
 const MIGRATIONS_DIR = join(import.meta.dir, "migrations");
 
-/** Open de SQLite-database en draai eventuele openstaande migraties. */
 export function openDatabase(): Database {
   const dir = dirname(env.dbPath);
   if (dir !== "." && dir !== "") {
@@ -21,7 +20,6 @@ export function openDatabase(): Database {
   return db;
 }
 
-/** Draai .sql migraties uit de migrations-map in bestandsnaamvolgorde. */
 function runMigrations(db: Database): void {
   let files: string[];
   try {

@@ -6,7 +6,6 @@ interface LogEntry {
   timestamp: string;
 }
 
-/** Minimalistische logger-werapper met timestamp en levels. */
 export const logger = {
   debug(message: string, ...args: unknown[]): void {
     this.write("debug", message, args);

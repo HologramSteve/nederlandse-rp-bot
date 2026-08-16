@@ -1,6 +1,5 @@
 import { logger } from "../core/utils/logger.js";
 
-/** Eénmalig gelezen, gevalideerde omgevingsvariabelen. */
 export interface Env {
   token: string;
   clientId: string;
@@ -16,7 +15,6 @@ function requireEnv(name: string): string {
   return value;
 }
 
-/** Lees en valideer de omgevingsvariabelen eenmalig. */
 export function loadEnv(): Env {
   logger.debug("Omgevingsvariabelen laden...");
   return {

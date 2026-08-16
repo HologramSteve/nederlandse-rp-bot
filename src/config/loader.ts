@@ -24,7 +24,6 @@ const DEFAULTS: BotConfig = {
   session: { voteQuorum: 6 },
 };
 
-/** Laad en type-verifieer config.json eenmalig; vult ontbrekende velden met defaults. */
 export function loadBotConfig(): BotConfig {
   try {
     const raw: Partial<BotConfig> = JSON.parse(readFileSync(CONFIG_PATH, "utf8"));

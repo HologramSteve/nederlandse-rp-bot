@@ -11,7 +11,6 @@ import {
 import type { Button } from "../../../types/Button.js";
 import { SessionRepository } from "../repositories/SessionRepository.js";
 
-/** ✅ knop: registreert een stem, telt bij en start bij quorum. */
 export const ssuVote: Button = {
   customId: "ssu-vote",
   async execute(interaction, ctx: ClientContext) {
@@ -39,7 +38,6 @@ export const ssuVote: Button = {
     const quorum = ctx.botConfig.session.voteQuorum;
     const hostName = ctx.client.users.cache.get(state.host_id ?? "")?.username ?? "host";
 
-    // Hijsbericht: ververs de originele vote-embed live.
     const { embed, row } = buildVoteEmbed({
       hostName,
       hostId: state.host_id ?? "",
@@ -50,7 +48,6 @@ export const ssuVote: Button = {
     await interaction.update({ embeds: [embed], components: [row] });
 
     if (voters.length >= quorum) {
-      // Quorum bereikt: start de sessie.
       const now = Date.now();
       repo.updateState({
         status: "active",
@@ -67,9 +64,7 @@ export const ssuVote: Button = {
 
       try {
         await interaction.message.delete();
-      } catch {
-        /* negeren */
-      }
+      } catch {}
 
       const target =
         (ctx.botConfig.channels.sessions &&

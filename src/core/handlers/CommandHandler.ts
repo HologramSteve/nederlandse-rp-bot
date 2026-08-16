@@ -9,10 +9,6 @@ import { hasPermissionLevel } from "../../modules/moderation/guards.js";
 import type { ClientContext } from "../client/ClientContext.js";
 import { logger } from "../utils/logger.js";
 
-/**
- * Beheert de interactie-dispatch (slash-commands + buttons) en registreert de
- * InteractionCreate-handler op de client.
- */
 export function setupCommandHandler(ctx: ClientContext): void {
   const cooldowns = new Map<string, Map<string, number>>();
 
@@ -43,7 +39,6 @@ async function handleCommand(
     return;
   }
 
-  // Permission-gating op basis van rol-arrays (moderator/admin).
   if (command.permissionLevel) {
     const member = interaction.member;
     if (!member || "user" in member === false) {

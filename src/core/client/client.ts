@@ -11,7 +11,6 @@ import { loadEvents } from "../loaders/loadEvents.js";
 import { loadSelectMenus } from "../loaders/loadSelectMenus.js";
 import type { ClientContext } from "./ClientContext.js";
 
-/** Maak de Discord-client aan met de benodigde intents. */
 export function createClient(): Client {
   const options: ClientOptions = {
     intents: [
@@ -24,7 +23,6 @@ export function createClient(): Client {
   return new Client(options);
 }
 
-/** Rijg config, db, loaders en handlers aan elkaar en retourneer de context. */
 export async function bootstrap(env: Env, botConfig: BotConfig): Promise<ClientContext> {
   const client = createClient();
   const db = openDatabase();
@@ -49,7 +47,6 @@ export async function bootstrap(env: Env, botConfig: BotConfig): Promise<ClientC
   registerEvents(ctx, events);
   setupCommandHandler(ctx);
 
-  // Stats-service starten zodra de client klaar is (clientReady is al geregistreerd).
   const statsService = new StatsService(ctx);
   client.once(Events.ClientReady, () => {
     statsService.start();
