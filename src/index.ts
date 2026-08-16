@@ -11,3 +11,4 @@ main().catch((error) => {
   logger.error("Fout bij het opstarten van de bot:", error);
   process.exit(1);
 });
+

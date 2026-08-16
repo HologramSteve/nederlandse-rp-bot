@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "bun run src/index.ts",
-    "dev": "bun --watch src/index.ts",
+    "dev": "nodemon",
     "typecheck": "tsc --noEmit",
     "deploy-commands": "bun run src/deploy-commands.ts",
     "format": "biome format --write .",
@@ -27,7 +27,8 @@
   "devDependencies": {
     "typescript": "^5.5.4",
     "@types/bun": "latest",
-    "@biomejs/biome": "^2.5.8"
+    "@biomejs/biome": "^2.5.8",
+    "nodemon": "^3.1.0"
   },
   "dependencies": {
     "discord.js": "^14.15.3"
