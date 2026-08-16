@@ -2,26 +2,30 @@
   "name": "nederlandse-rp-bot",
   "version": "0.1.0",
   "description": "Een Discord RP-bot voor de Nederlandse rolspel-gemeenschap",
-  "main": "src/index.js",
+  "module": "src/index.ts",
   "type": "module",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "node --watch src/index.js"
+    "start": "bun run src/index.ts",
+    "dev": "bun --watch src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "deploy-commands": "bun run src/deploy-commands.ts"
   },
   "keywords": [
     "discord",
     "bot",
     "roleplay",
     "rp",
-    "nederlands"
+    "nederlands",
+    "bun",
+    "typescript"
   ],
   "author": "HologramSteve",
   "license": "MIT",
-  "engines": {
-    "node": ">=18.0.0"
+  "devDependencies": {
+    "typescript": "^5.5.4",
+    "@types/bun": "latest"
   },
   "dependencies": {
-    "discord.js": "^14.15.3",
-    "dotenv": "^16.4.5"
+    "discord.js": "^14.15.3"
   }
 }

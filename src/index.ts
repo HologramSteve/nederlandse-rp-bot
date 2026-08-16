@@ -1,4 +1,3 @@
-import "dotenv/config";
 import { startBot } from "./client.js";
 
 startBot().catch((error) => {
