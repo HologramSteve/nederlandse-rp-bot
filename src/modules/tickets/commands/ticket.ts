@@ -1,17 +1,21 @@
 import {
   ActionRowBuilder,
   type ChatInputCommandInteraction,
-  EmbedBuilder,
   SlashCommandBuilder,
   StringSelectMenuBuilder,
 } from "discord.js";
 import type { ClientContext } from "../../../core/client/ClientContext.js";
 import { logger } from "../../../core/utils/logger.js";
+import {
+  buildErrorEmbed,
+  buildSuccessEmbed,
+  buildTicketClaimedEmbed,
+  buildTicketClosingEmbed,
+  buildTicketPanelEmbed,
+} from "../../../embeds.js";
 import type { Command } from "../../../types/Command.js";
 import { TicketRepository } from "../repositories/TicketRepository.js";
 import { TICKET_TYPES } from "../selects/ticket-select.js";
-
-const BLUE = 0x0099ff;
 
 const data = new SlashCommandBuilder()
   .setName("ticket")
@@ -40,7 +44,7 @@ export const ticket: Command = {
       const channelId = ctx.botConfig.channels.ticketPanel;
       if (!channelId) {
         await interaction.reply({
-          content: "Geen ticket-paneel-kanaal ingesteld (config.json).",
+          embeds: [buildErrorEmbed("Geen ticket-paneel-kanaal ingesteld (config.json).")],
           ephemeral: true,
         });
         return;
@@ -48,21 +52,11 @@ export const ticket: Command = {
       const target = ctx.client.channels.cache.get(channelId);
       if (!target || !("send" in target) || typeof target.send !== "function") {
         await interaction.reply({
-          content: "Het ticket-paneel-kanaal is niet gevonden.",
+          embeds: [buildErrorEmbed("Het ticket-paneel-kanaal is niet gevonden.")],
           ephemeral: true,
         });
         return;
       }
-
-      const embed = new EmbedBuilder()
-        .setColor(BLUE)
-        .setTitle("🎫 Ticket-dashboard")
-        .setDescription(
-          "Kies hieronder een optie om een ticket te openen. " +
-            "Een stafflid helpt je zo snel mogelijk verder.",
-        )
-        .setFooter({ text: "Kies één optie uit het menu" })
-        .setTimestamp();
 
       const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
         new StringSelectMenuBuilder()
@@ -77,9 +71,9 @@ export const ticket: Command = {
           ),
       );
 
-      await target.send({ embeds: [embed], components: [row] });
+      await target.send({ embeds: [buildTicketPanelEmbed()], components: [row] });
       await interaction.reply({
-        content: `Ticket-dashboard geplaatst in <#${channelId}>.`,
+        embeds: [buildSuccessEmbed(`Ticket-dashboard geplaatst in <#${channelId}>.`)],
         ephemeral: true,
       });
       return;
@@ -89,13 +83,16 @@ export const ticket: Command = {
       const ticketRec = repo.findByChannel(interaction.channelId);
       if (!ticketRec) {
         await interaction.reply({
-          content: "Dit is geen ticket-kanaal.",
+          embeds: [buildErrorEmbed("Dit is geen ticket-kanaal.")],
           ephemeral: true,
         });
         return;
       }
       repo.close(interaction.channelId);
-      await interaction.reply({ content: "Ticket sluiten...", ephemeral: false });
+      await interaction.reply({
+        embeds: [buildTicketClosingEmbed()],
+        ephemeral: false,
+      });
       setTimeout(() => interaction.channel?.delete().catch(() => undefined), 1500);
       logger.info(
         `Ticket ${ticketRec.ticket_id} gesloten via /ticket door ${interaction.user.tag}`,
@@ -107,14 +104,14 @@ export const ticket: Command = {
       const ticketRec = repo.findByChannel(interaction.channelId);
       if (!ticketRec) {
         await interaction.reply({
-          content: "Dit is geen ticket-kanaal.",
+          embeds: [buildErrorEmbed("Dit is geen ticket-kanaal.")],
           ephemeral: true,
         });
         return;
       }
       repo.claim(interaction.channelId, interaction.user.id);
       await interaction.reply({
-        content: `Ticket geclaimd door <@${interaction.user.id}>.`,
+        embeds: [buildTicketClaimedEmbed({ claimedById: interaction.user.id })],
         ephemeral: false,
       });
       logger.info(`Ticket ${ticketRec.ticket_id} geclaimd door ${interaction.user.tag}`);

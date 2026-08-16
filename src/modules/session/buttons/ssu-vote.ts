@@ -1,11 +1,15 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } from "discord.js";
 import type { ClientContext } from "../../../core/client/ClientContext.js";
 import { logger } from "../../../core/utils/logger.js";
+import {
+  buildErrorEmbed,
+  buildJoinRow,
+  buildStartEmbed,
+  buildSuccessEmbed,
+  buildVoteEmbed,
+  buildWarningEmbed,
+} from "../../../embeds.js";
 import type { Button } from "../../../types/Button.js";
-import { buildJoinRow, buildStartEmbed } from "../embeds/sessionEmbeds.js";
 import { SessionRepository } from "../repositories/SessionRepository.js";
-
-const BLUE = 0x0099ff;
 
 /** ✅ knop: registreert een stem, telt bij en start bij quorum. */
 export const ssuVote: Button = {
@@ -16,7 +20,7 @@ export const ssuVote: Button = {
 
     if (state?.status !== "vote_active") {
       await interaction.reply({
-        content: "There is not an SSU vote active.",
+        embeds: [buildErrorEmbed("Er is geen actieve SSU-vote.")],
         ephemeral: true,
       });
       return;
@@ -24,7 +28,7 @@ export const ssuVote: Button = {
 
     if (repo.hasVoter(interaction.user.id)) {
       await interaction.reply({
-        content: "You have already voted.",
+        embeds: [buildWarningEmbed("Je hebt al gestemd.")],
         ephemeral: true,
       });
       return;
@@ -33,35 +37,21 @@ export const ssuVote: Button = {
     repo.addVoter(interaction.user.id);
     const voters = repo.getVoters();
     const quorum = ctx.botConfig.session.voteQuorum;
+    const hostName = ctx.client.users.cache.get(state.host_id ?? "")?.username ?? "host";
 
-    // Hijsbericht: edit de originele vote-embed live.
-    const message = interaction.message;
-    const oldEmbed = message.embeds[0];
-    const newEmbed = oldEmbed
-      ? EmbedBuilder.from(oldEmbed)
-          .setDescription(
-            `A vote is open to start a session. Hit the ✅ button to vote!\nHost: <@${state.host_id}>\nVote count: **${voters.length}** / ${quorum}`,
-          )
-          .setFooter({ text: `${voters.length} total vote(s)` })
-      : new EmbedBuilder().setColor(BLUE).setTitle("SSU Vote");
-
-    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder()
-        .setLabel(`✅ Vote (${voters.length})`)
-        .setStyle(ButtonStyle.Success)
-        .setCustomId("ssu-vote"),
-      new ButtonBuilder()
-        .setLabel("Voters")
-        .setStyle(ButtonStyle.Secondary)
-        .setCustomId("ssu-voters"),
-    );
-    await interaction.update({ embeds: [newEmbed], components: [row] });
+    // Hijsbericht: ververs de originele vote-embed live.
+    const { embed, row } = buildVoteEmbed({
+      hostName,
+      hostId: state.host_id ?? "",
+      quorum,
+      voters: voters.length,
+      at: Date.now(),
+    });
+    await interaction.update({ embeds: [embed], components: [row] });
 
     if (voters.length >= quorum) {
       // Quorum bereikt: start de sessie.
       const now = Date.now();
-      const hostName =
-        ctx.client.users.cache.get(state.host_id ?? "")?.username ?? "host";
       repo.updateState({
         status: "active",
         started_at: now,
@@ -73,11 +63,10 @@ export const ssuVote: Button = {
         hostName,
         hostId: state.host_id ?? "",
         at: now,
-        config: ctx.botConfig,
       });
 
       try {
-        await message.delete();
+        await interaction.message.delete();
       } catch {
         /* negeren */
       }
@@ -93,12 +82,15 @@ export const ssuVote: Button = {
         });
       }
       await interaction.followUp({
-        content: "Quorum bereikt! Sessie gestart 🟢",
+        embeds: [buildSuccessEmbed("Quorum bereikt! Sessie gestart 🟢")],
         ephemeral: true,
       });
       logger.info("SSU-vote quorum bereikt; sessie gestart.");
     } else {
-      await interaction.followUp({ content: "Thanks for voting!", ephemeral: true });
+      await interaction.followUp({
+        embeds: [buildSuccessEmbed("Bedankt voor je stem! 🗳️")],
+        ephemeral: true,
+      });
     }
   },
 };

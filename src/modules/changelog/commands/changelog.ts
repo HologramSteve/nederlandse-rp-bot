@@ -1,9 +1,10 @@
-import {
-  type ChatInputCommandInteraction,
-  EmbedBuilder,
-  SlashCommandBuilder,
-} from "discord.js";
+import { type ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import type { ClientContext } from "../../../core/client/ClientContext.js";
+import {
+  buildChangelogEmbed,
+  buildErrorEmbed,
+  buildSuccessEmbed,
+} from "../../../embeds.js";
 import type { Command } from "../../../types/Command.js";
 
 const data = new SlashCommandBuilder()
@@ -31,7 +32,11 @@ export const changelog: Command = {
     const channelId = ctx.botConfig.channels.changelog;
     if (!channelId) {
       await interaction.reply({
-        content: "Geen changelog-kanaal ingesteld (config.json → channels.changelog).",
+        embeds: [
+          buildErrorEmbed(
+            "Geen changelog-kanaal ingesteld (config.json → channels.changelog).",
+          ),
+        ],
         ephemeral: true,
       });
       return;
@@ -40,22 +45,19 @@ export const changelog: Command = {
     const target = ctx.client.channels.cache.get(channelId);
     if (!target || !("send" in target) || typeof target.send !== "function") {
       await interaction.reply({
-        content: "Het changelog-kanaal is niet gevonden. Controleer config.json.",
+        embeds: [
+          buildErrorEmbed(
+            "Het changelog-kanaal is niet gevonden. Controleer config.json.",
+          ),
+        ],
         ephemeral: true,
       });
       return;
     }
 
-    const embed = new EmbedBuilder()
-      .setColor(0x00ff6f)
-      .setTitle(`📢 ${titel}`)
-      .setDescription(tekst)
-      .setFooter({ text: "Changelog" })
-      .setTimestamp();
-
-    await target.send({ embeds: [embed] });
+    await target.send({ embeds: [buildChangelogEmbed({ titel, tekst })] });
     await interaction.reply({
-      content: `Changelog geplaatst in <#${channelId}>.`,
+      embeds: [buildSuccessEmbed(`Changelog geplaatst in <#${channelId}>.`)],
       ephemeral: true,
     });
   },

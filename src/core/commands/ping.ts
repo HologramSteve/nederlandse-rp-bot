@@ -1,4 +1,5 @@
 import { type ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
+import { buildPingEmbed } from "../../embeds.js";
 import type { Command } from "../../types/Command.js";
 import type { ClientContext } from "../client/ClientContext.js";
 
@@ -9,14 +10,12 @@ export const ping: Command = {
 
   async execute(interaction: ChatInputCommandInteraction, _ctx: ClientContext) {
     const sent = await interaction.reply({
-      content: "🏓 Pong!",
+      embeds: [buildPingEmbed(0)],
       fetchReply: true,
     });
-    await interaction.editReply(
-      "🏓 Pong! (Latency: " +
-        (sent.createdTimestamp - interaction.createdTimestamp) +
-        "ms)",
-    );
+    await interaction.editReply({
+      embeds: [buildPingEmbed(sent.createdTimestamp - interaction.createdTimestamp)],
+    });
   },
 
   toJSON() {

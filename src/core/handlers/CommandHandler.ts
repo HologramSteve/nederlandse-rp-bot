@@ -4,6 +4,7 @@ import {
   Events,
   type StringSelectMenuInteraction,
 } from "discord.js";
+import { buildErrorEmbed, buildWarningEmbed } from "../../embeds.js";
 import { hasPermissionLevel } from "../../modules/moderation/guards.js";
 import type { ClientContext } from "../client/ClientContext.js";
 import { logger } from "../utils/logger.js";
@@ -36,7 +37,7 @@ async function handleCommand(
 
   if (command.guildOnly && !interaction.inGuild()) {
     await interaction.reply({
-      content: "Dit commando werkt alleen binnen een server.",
+      embeds: [buildErrorEmbed("Dit commando werkt alleen binnen een server.")],
       ephemeral: true,
     });
     return;
@@ -47,7 +48,7 @@ async function handleCommand(
     const member = interaction.member;
     if (!member || "user" in member === false) {
       await interaction.reply({
-        content: "Je wordt niet herkend als lid van deze server.",
+        embeds: [buildErrorEmbed("Je wordt niet herkend als lid van deze server.")],
         ephemeral: true,
       });
       return;
@@ -61,7 +62,9 @@ async function handleCommand(
       !hasPermissionLevel(guildMember, command.permissionLevel, ctx.botConfig)
     ) {
       await interaction.reply({
-        content: "Je hebt niet genoeg rechten om dit commando te gebruiken.",
+        embeds: [
+          buildErrorEmbed("Je hebt niet genoeg rechten om dit commando te gebruiken."),
+        ],
         ephemeral: true,
       });
       return;
@@ -76,7 +79,11 @@ async function handleCommand(
     const wait = command.cooldown * 1000 - (now - last);
     if (wait > 0) {
       await interaction.reply({
-        content: `Rustig aan! Wacht nog ${Math.ceil(wait / 1000)} seconde(n) voordat je dit commando opnieuw gebruikt.`,
+        embeds: [
+          buildWarningEmbed(
+            `Rustig aan! Wacht nog ${Math.ceil(wait / 1000)} seconde(n) voordat je dit commando opnieuw gebruikt.`,
+          ),
+        ],
         ephemeral: true,
       });
       return;
@@ -89,11 +96,11 @@ async function handleCommand(
     await command.execute(interaction, ctx);
   } catch (error) {
     logger.error(`Fout bij commando: ${interaction.commandName}`, error);
-    const message = "Er ging iets mis bij het uitvoeren van dit commando.";
+    const embed = buildErrorEmbed("Er ging iets mis bij het uitvoeren van dit commando.");
     if (interaction.replied || interaction.deferred) {
-      await interaction.followUp({ content: message, ephemeral: true });
+      await interaction.followUp({ embeds: [embed], ephemeral: true });
     } else {
-      await interaction.reply({ content: message, ephemeral: true });
+      await interaction.reply({ embeds: [embed], ephemeral: true });
     }
   }
 }
@@ -105,7 +112,7 @@ async function handleSelectMenu(
   const selectMenu = ctx.selectMenus.get(interaction.customId);
   if (!selectMenu) {
     await interaction.reply({
-      content: "Dit selectmenu is verlopen of niet meer actief.",
+      embeds: [buildErrorEmbed("Dit selectmenu is verlopen of niet meer actief.")],
       ephemeral: true,
     });
     return;
@@ -115,7 +122,7 @@ async function handleSelectMenu(
   } catch (error) {
     logger.error(`Fout bij selectmenu: ${interaction.customId}`, error);
     await interaction
-      .reply({ content: "Er ging iets mis.", ephemeral: true })
+      .reply({ embeds: [buildErrorEmbed("Er ging iets mis.")], ephemeral: true })
       .catch(() => undefined);
   }
 }
@@ -127,7 +134,7 @@ async function handleButton(
   const button = ctx.buttons.get(interaction.customId);
   if (!button) {
     await interaction.reply({
-      content: "Deze knop is verlopen of niet meer actief.",
+      embeds: [buildErrorEmbed("Deze knop is verlopen of niet meer actief.")],
       ephemeral: true,
     });
     return;
@@ -137,7 +144,7 @@ async function handleButton(
   } catch (error) {
     logger.error(`Fout bij knop: ${interaction.customId}`, error);
     await interaction
-      .reply({ content: "Er ging iets mis.", ephemeral: true })
+      .reply({ embeds: [buildErrorEmbed("Er ging iets mis.")], ephemeral: true })
       .catch(() => undefined);
   }
 }

@@ -17,7 +17,6 @@ const DEFAULTS: BotConfig = {
     modLog: "",
     changelog: "",
   },
-  images: { banner: "", welcome: "" },
   autorole: "",
   memberGoal: 100,
   stats: { members: "", goal: "" },

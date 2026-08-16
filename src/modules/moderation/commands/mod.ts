@@ -6,8 +6,14 @@ import {
 } from "discord.js";
 import type { ClientContext } from "../../../core/client/ClientContext.js";
 import { logger } from "../../../core/utils/logger.js";
+import {
+  buildErrorEmbed,
+  buildInfractionEmbed,
+  buildKickSuccessEmbed,
+  buildWarnDmEmbed,
+  buildWarnSuccessEmbed,
+} from "../../../embeds.js";
 import type { Command } from "../../../types/Command.js";
-import { buildInfractionEmbed } from "../embeds/modLogEmbeds.js";
 import { hasPermissionLevel } from "../guards.js";
 import { InfractionRepository } from "../repositories/InfractionRepository.js";
 
@@ -49,7 +55,10 @@ export const mod: Command = {
     const sub = interaction.options.getSubcommand();
     const member = interaction.member;
     if (!member || !("guild" in member)) {
-      await interaction.reply({ content: "Je wordt niet herkend.", ephemeral: true });
+      await interaction.reply({
+        embeds: [buildErrorEmbed("Je wordt niet herkend.")],
+        ephemeral: true,
+      });
       return;
     }
 
@@ -62,7 +71,7 @@ export const mod: Command = {
       )
     ) {
       await interaction.reply({
-        content: "Je hebt niet genoeg rechten.",
+        embeds: [buildErrorEmbed("Je hebt niet genoeg rechten.")],
         ephemeral: true,
       });
       return;
@@ -79,19 +88,26 @@ export const mod: Command = {
       const hasDiscordPerm = member.permissions?.has(PermissionFlagsBits.KickMembers);
       if (!hasDiscordPerm) {
         await interaction.reply({
-          content: "Je hebt de Discord-permissie KICK_MEMBERS niet; kick geweigerd.",
+          embeds: [
+            buildErrorEmbed(
+              "Je hebt de Discord-permissie KICK_MEMBERS niet; kick geweigerd.",
+            ),
+          ],
           ephemeral: true,
         });
         return;
       }
 
       if (!target) {
-        await interaction.reply({ content: "Doel niet gevonden.", ephemeral: true });
+        await interaction.reply({
+          embeds: [buildErrorEmbed("Doel niet gevonden.")],
+          ephemeral: true,
+        });
         return;
       }
       if (!target.kickable) {
         await interaction.reply({
-          content: "Dit lid kan niet gekickt worden (rol-hiërarchie).",
+          embeds: [buildErrorEmbed("Dit lid kan niet gekickt worden (rol-hiërarchie).")],
           ephemeral: true,
         });
         return;
@@ -108,7 +124,12 @@ export const mod: Command = {
       await logToModChannel(ctx, buildInfractionEmbed(infraction));
       await target.kick(reason);
       await interaction.reply({
-        content: `✅ ${target.user.tag} is gekickt (case ${infraction.case_no}).`,
+        embeds: [
+          buildKickSuccessEmbed({
+            userTag: target.user.tag,
+            caseNo: infraction.case_no,
+          }),
+        ],
         ephemeral: false,
       });
       logger.info(`${interaction.user.tag} kickte ${target.user.tag}: ${reason}`);
@@ -117,7 +138,10 @@ export const mod: Command = {
 
     if (sub === "warn") {
       if (!target) {
-        await interaction.reply({ content: "Doel niet gevonden.", ephemeral: true });
+        await interaction.reply({
+          embeds: [buildErrorEmbed("Doel niet gevonden.")],
+          ephemeral: true,
+        });
         return;
       }
       const reason = interaction.options.getString("reason") ?? "Geen reden";
@@ -130,13 +154,24 @@ export const mod: Command = {
 
       await logToModChannel(ctx, buildInfractionEmbed(infraction));
       await interaction.reply({
-        content: `⚠️ ${target.user.tag} gewaarschuwd (case ${infraction.case_no}).`,
+        embeds: [
+          buildWarnSuccessEmbed({
+            userTag: target.user.tag,
+            caseNo: infraction.case_no,
+          }),
+        ],
         ephemeral: false,
       });
 
       try {
-        await target.send(`⚠️ Je bent gewaarschuwd in ${interaction.guild?.name ?? "de server"}.
-Reden: ${reason}`);
+        await target.send({
+          embeds: [
+            buildWarnDmEmbed({
+              guildName: interaction.guild?.name ?? "de server",
+              reason,
+            }),
+          ],
+        });
       } catch {
         /* DM gefaald; infractie is al gelogd */
       }

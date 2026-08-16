@@ -3,16 +3,19 @@ import {
   ButtonBuilder,
   ButtonStyle,
   ChannelType,
-  EmbedBuilder,
   PermissionFlagsBits,
   type StringSelectMenuInteraction,
 } from "discord.js";
 import type { ClientContext } from "../../../core/client/ClientContext.js";
 import { logger } from "../../../core/utils/logger.js";
+import {
+  buildErrorEmbed,
+  buildSuccessEmbed,
+  buildTicketOpenedEmbed,
+  buildWarningEmbed,
+} from "../../../embeds.js";
 import type { SelectMenu } from "../../../types/SelectMenu.js";
 import { TicketRepository } from "../repositories/TicketRepository.js";
-
-const BLUE = 0x0099ff;
 
 /** De beschikbare ticket-typen uit het ticket-dashboard. */
 export const TICKET_TYPES = {
@@ -32,14 +35,15 @@ export function ticketTypeLabel(type: string): string {
 
 /**
  * Opent een ticket op basis van de keuze uit het ticket-dashboard:
- * maakt een privékanaal onder de ticket-categorie.
+ * maakt een privékanaal onder de ticket-categorie met een openingsembed
+ * inclusief Claim- en Sluiten-knoppen.
  */
 export const ticketSelect: SelectMenu = {
   customId: "ticket-select",
   async execute(interaction: StringSelectMenuInteraction, ctx: ClientContext) {
     if (!interaction.inGuild()) {
       await interaction.reply({
-        content: "Tickets werken alleen binnen een server.",
+        embeds: [buildErrorEmbed("Tickets werken alleen binnen een server.")],
         ephemeral: true,
       });
       return;
@@ -48,7 +52,7 @@ export const ticketSelect: SelectMenu = {
     const type = interaction.values[0] ?? "support";
     if (!(type in TICKET_TYPES)) {
       await interaction.reply({
-        content: "Ongeldige ticket-optie gekozen.",
+        embeds: [buildErrorEmbed("Ongeldige ticket-optie gekozen.")],
         ephemeral: true,
       });
       return;
@@ -58,7 +62,9 @@ export const ticketSelect: SelectMenu = {
     const existing = repo.findOpenByOwner(interaction.user.id);
     if (existing) {
       await interaction.reply({
-        content: `Je hebt al een open ticket: <#${existing.channel_id}>`,
+        embeds: [
+          buildWarningEmbed(`Je hebt al een open ticket: <#${existing.channel_id}>`),
+        ],
         ephemeral: true,
       });
       return;
@@ -66,13 +72,18 @@ export const ticketSelect: SelectMenu = {
 
     const guild = interaction.guild;
     if (!guild) {
-      await interaction.reply({ content: "Server niet gevonden.", ephemeral: true });
+      await interaction.reply({
+        embeds: [buildErrorEmbed("Server niet gevonden.")],
+        ephemeral: true,
+      });
       return;
     }
     const categoryId = ctx.botConfig.ticketCategory;
     if (!categoryId) {
       await interaction.reply({
-        content: "Ticket-categorie is niet geconfigureerd (config.json).",
+        embeds: [
+          buildErrorEmbed("Ticket-categorie is niet geconfigureerd (config.json)."),
+        ],
         ephemeral: true,
       });
       return;
@@ -111,27 +122,32 @@ export const ticketSelect: SelectMenu = {
       category: type,
     });
 
-    const embed = new EmbedBuilder()
-      .setColor(BLUE)
-      .setTitle(`Ticket geopend — ${ticketTypeLabel(type)}`)
-      .setDescription(
-        "Hallo <@" +
-          interaction.user.id +
-          ">,\nomschrijf hieronder je vraag of opmerking. " +
-          "Een stafflid neemt je ticket zo snel mogelijk over.",
-      )
-      .setTimestamp();
-
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder()
+        .setLabel("Claim")
+        .setStyle(ButtonStyle.Primary)
+        .setCustomId("ticket-claim"),
       new ButtonBuilder()
         .setLabel("Sluiten")
         .setStyle(ButtonStyle.Danger)
         .setCustomId("ticket-close"),
     );
 
-    await channel.send({ embeds: [embed], components: [row] });
+    await channel.send({
+      embeds: [
+        buildTicketOpenedEmbed({
+          typeLabel: ticketTypeLabel(type),
+          ownerId: interaction.user.id,
+        }),
+      ],
+      components: [row],
+    });
     await interaction.reply({
-      content: `Je ${ticketTypeLabel(type)}-ticket is geopend: <#${channel.id}>`,
+      embeds: [
+        buildSuccessEmbed(
+          `Je ${ticketTypeLabel(type)}-ticket is geopend: <#${channel.id}>`,
+        ),
+      ],
       ephemeral: true,
     });
     logger.info(`Ticket (${type}) geopend door ${interaction.user.tag}`);

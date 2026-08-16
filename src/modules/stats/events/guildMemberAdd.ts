@@ -1,6 +1,7 @@
-import { EmbedBuilder, Events, type GuildMember } from "discord.js";
+import { Events, type GuildMember } from "discord.js";
 import type { ClientContext } from "../../../core/client/ClientContext.js";
 import { logger } from "../../../core/utils/logger.js";
+import { buildWelcomeEmbed } from "../../../embeds.js";
 import type { Event } from "../../../types/Event.js";
 
 /** Welkom-embed + autorole bij een nieuwe aanmelding. */
@@ -24,13 +25,10 @@ export const onGuildMemberAdd: Event<typeof Events.GuildMemberAdd> = {
     const channel = ctx.client.channels.cache.get(welcomeId);
     if (!channel || !("send" in channel) || typeof channel.send !== "function") return;
 
-    const embed = new EmbedBuilder()
-      .setColor(0x00ff6f)
-      .setTitle("Welkom!")
-      .setDescription(`Welkom <@${member.id}> in de community! 🇳🇱`)
-      .setImage(config.images.welcome || null)
-      .setFooter({ text: `Lid #${member.guild.memberCount}` })
-      .setTimestamp();
+    const embed = buildWelcomeEmbed({
+      memberId: member.id,
+      memberCount: member.guild.memberCount,
+    });
 
     await channel.send({ embeds: [embed] });
     logger.info(`Nieuw lid: ${member.user.tag}`);

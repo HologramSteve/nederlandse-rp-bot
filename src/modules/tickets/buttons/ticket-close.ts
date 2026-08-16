@@ -1,5 +1,6 @@
 import type { ClientContext } from "../../../core/client/ClientContext.js";
 import { logger } from "../../../core/utils/logger.js";
+import { buildErrorEmbed, buildTicketClosingEmbed } from "../../../embeds.js";
 import type { Button } from "../../../types/Button.js";
 import { TicketRepository } from "../repositories/TicketRepository.js";
 
@@ -10,12 +11,18 @@ export const ticketClose: Button = {
     const repo = new TicketRepository(ctx.db);
     const ticket = repo.findByChannel(interaction.channelId);
     if (!ticket) {
-      await interaction.reply({ content: "Dit is geen ticket-kanaal.", ephemeral: true });
+      await interaction.reply({
+        embeds: [buildErrorEmbed("Dit is geen ticket-kanaal.")],
+        ephemeral: true,
+      });
       return;
     }
 
     repo.close(interaction.channelId);
-    await interaction.reply({ content: "Ticket wordt gesloten...", ephemeral: false });
+    await interaction.reply({
+      embeds: [buildTicketClosingEmbed()],
+      ephemeral: false,
+    });
 
     // Verwijder het kanaal na een korte pauze.
     setTimeout(() => {

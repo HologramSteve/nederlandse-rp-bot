@@ -4,13 +4,16 @@ import {
   SlashCommandBuilder,
 } from "discord.js";
 import type { ClientContext } from "../../../core/client/ClientContext.js";
-import type { Command } from "../../../types/Command.js";
 import {
+  buildErrorEmbed,
+  buildInfoEmbed,
   buildJoinRow,
   buildStartEmbed,
   buildStopEmbed,
+  buildSuccessEmbed,
   buildVoteEmbed,
-} from "../embeds/sessionEmbeds.js";
+} from "../../../embeds.js";
+import type { Command } from "../../../types/Command.js";
 import { SessionRepository } from "../repositories/SessionRepository.js";
 
 const data = new SlashCommandBuilder()
@@ -34,14 +37,19 @@ export const session: Command = {
     const host = interaction.user;
     const now = Date.now();
 
-    if (sub === "vote") {
-      // Sluit een eventueel open vote af en start direct? Nee: open vote aan.
+    const sessionChannel = () => {
       const target = ctx.botConfig.channels.sessions
         ? ctx.client.channels.cache.get(ctx.botConfig.channels.sessions)
         : interaction.channel;
-      if (!target || target.type !== ChannelType.GuildText) {
+      if (!target || target.type !== ChannelType.GuildText) return null;
+      return target;
+    };
+
+    if (sub === "vote") {
+      const target = sessionChannel();
+      if (!target) {
         await interaction.reply({
-          content: "Het sessiekanaal uit config.json is ongeldig.",
+          embeds: [buildErrorEmbed("Het sessiekanaal uit config.json is ongeldig.")],
           ephemeral: true,
         });
         return;
@@ -59,13 +67,12 @@ export const session: Command = {
         quorum: ctx.botConfig.session.voteQuorum,
         voters: votersCount,
         at: now,
-        config: ctx.botConfig,
       });
 
       const msg = await target.send({ embeds: [embed], components: [row] });
       repo.updateState({ status: "vote_active", vote_message_id: msg.id });
       await interaction.reply({
-        content: "Vote geopend! 🗳️",
+        embeds: [buildSuccessEmbed("Vote geopend! 🗳️")],
         ephemeral: true,
       });
       return;
@@ -74,12 +81,10 @@ export const session: Command = {
     if (sub === "start") {
       const state = repo.getState();
       const joinCode = state?.join_code ?? "12345";
-      const target = ctx.botConfig.channels.sessions
-        ? ctx.client.channels.cache.get(ctx.botConfig.channels.sessions)
-        : interaction.channel;
-      if (!target || target.type !== ChannelType.GuildText) {
+      const target = sessionChannel();
+      if (!target) {
         await interaction.reply({
-          content: "Het sessiekanaal uit config.json is ongeldig.",
+          embeds: [buildErrorEmbed("Het sessiekanaal uit config.json is ongeldig.")],
           ephemeral: true,
         });
         return;
@@ -108,11 +113,10 @@ export const session: Command = {
         hostName: host.username,
         hostId: host.id,
         at: now,
-        config: ctx.botConfig,
       });
       await target.send({ embeds: [embed], components: [buildJoinRow(joinCode)] });
       await interaction.reply({
-        content: "Sessie gestart! 🟢",
+        embeds: [buildSuccessEmbed("Sessie gestart! 🟢")],
         ephemeral: true,
       });
       return;
@@ -122,14 +126,12 @@ export const session: Command = {
       repo.updateState({ status: "idle", started_at: null, vote_message_id: null });
       repo.clearVoters();
       const embed = buildStopEmbed({ hostName: host.username, at: now });
-      const target = ctx.botConfig.channels.sessions
-        ? ctx.client.channels.cache.get(ctx.botConfig.channels.sessions)
-        : interaction.channel;
-      if (target && target.type === ChannelType.GuildText) {
+      const target = sessionChannel();
+      if (target) {
         await target.send({ embeds: [embed] });
       }
       await interaction.reply({
-        content: "Sessie gestopt. 🔴",
+        embeds: [buildInfoEmbed("Sessie gestopt. 🔴")],
         ephemeral: true,
       });
       return;

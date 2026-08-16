@@ -17,10 +17,6 @@ export interface BotConfig {
     /** Kanaal waar /changelog de update-embeds plaatst. */
     changelog: string;
   };
-  images: {
-    banner: string;
-    welcome: string;
-  };
   /** Rol die nieuwkomers automatisch krijgen. */
   autorole: string;
   /** Het leden-doel dat de "Goal"-teller toont. */
