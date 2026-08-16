@@ -18,8 +18,7 @@ const DEFAULTS: BotConfig = {
   },
   images: { banner: "", welcome: "" },
   autorole: "",
-  chosenRole: "",
-  stats: { members: "", chosen: "" },
+  stats: { members: "" },
   ticketCategory: "",
   session: { voteQuorum: 6 },
 };

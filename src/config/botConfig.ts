@@ -21,13 +21,9 @@ export interface BotConfig {
   };
   /** Rol die nieuwkomers automatisch krijgen. */
   autorole: string;
-  /** Rol die als "gekozen lid" telt in de stats-teller. */
-  chosenRole: string;
   stats: {
     /** Voicechannel waarvan de naam het (totale) ledenaantal toont. */
     members: string;
-    /** Voicechannel waarvan de naam het "gekozen"-ledenaantal toont. */
-    chosen: string;
   };
   ticketCategory: string;
   session: {

@@ -1,5 +1,0 @@
-CREATE TABLE IF NOT EXISTS members (
-  user_id TEXT PRIMARY KEY,
-  joined_at INTEGER,
-  is_chosen INTEGER NOT NULL DEFAULT 0
-);

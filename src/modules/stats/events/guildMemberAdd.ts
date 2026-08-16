@@ -2,9 +2,8 @@ import { EmbedBuilder, Events, type GuildMember } from "discord.js";
 import type { ClientContext } from "../../../core/client/ClientContext.js";
 import { logger } from "../../../core/utils/logger.js";
 import type { Event } from "../../../types/Event.js";
-import { MemberRepository } from "../repositories/MemberRepository.js";
 
-/** Welkom-embed + autorole + lid registreren bij een nieuwe aanmelding. */
+/** Welkom-embed + autorole bij een nieuwe aanmelding. */
 export const onGuildMemberAdd: Event<typeof Events.GuildMemberAdd> = {
   name: Events.GuildMemberAdd,
   async execute(ctx: ClientContext, member: GuildMember) {
@@ -18,9 +17,6 @@ export const onGuildMemberAdd: Event<typeof Events.GuildMemberAdd> = {
         logger.warn("Kon autorole niet toekennen aan " + member.user.tag, error);
       }
     }
-
-    // Registreer in de ledentabel.
-    new MemberRepository(ctx.db).upsert(member.id, Date.now());
 
     // Welkom-embed.
     const welcomeId = config.channels.welcome;

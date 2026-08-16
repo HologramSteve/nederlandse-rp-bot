@@ -17,10 +17,8 @@
     "welcome": ""
   },
   "autorole": "",
-  "chosenRole": "",
   "stats": {
-    "members": "",
-    "chosen": ""
+    "members": ""
   },
   "ticketCategory": "",
   "session": {

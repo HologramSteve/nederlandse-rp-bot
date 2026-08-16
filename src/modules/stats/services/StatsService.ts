@@ -1,18 +1,15 @@
 import type { ClientContext } from "../../../core/client/ClientContext.js";
 import { logger } from "../../../core/utils/logger.js";
-import { MemberRepository } from "../repositories/MemberRepository.js";
 
 const REFRESH_MS = 60_000; // elke minuut
 
-/** Werkt live-tellers bij in "stats" voicechannels (Teller: {n} of rolnamen). */
+/** Werkt de ledenteller bij in het "stats" voicechannel. */
 export class StatsService {
   private timer: ReturnType<typeof setInterval> | null = null;
-  private readonly members: MemberRepository;
   private readonly ctx: ClientContext;
 
   constructor(ctx: ClientContext) {
     this.ctx = ctx;
-    this.members = new MemberRepository(ctx.db);
   }
 
   start(): void {
@@ -30,18 +27,6 @@ export class StatsService {
     if (config.stats.members && guild) {
       await this.setChannelName(config.stats.members, `🟢 Leden: ${guild.memberCount}`);
     }
-    if (config.stats.chosen) {
-      const chosen = config.chosenRole
-        ? this.countRole(guild)
-        : this.members.countChosen();
-      await this.setChannelName(config.stats.chosen, `⭐ Gekozen: ${chosen}`);
-    }
-  }
-
-  private countRole(guild?: import("discord.js").Guild): number {
-    if (!guild || !this.ctx.botConfig.chosenRole) return 0;
-    const role = guild.roles.cache.get(this.ctx.botConfig.chosenRole);
-    return role?.members.size ?? 0;
   }
 
   private async setChannelName(channelId: string, name: string): Promise<void> {
