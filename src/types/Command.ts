@@ -1,9 +1,9 @@
 import type {
+  ChatInputCommandInteraction,
   RESTPostAPIApplicationCommandsJSONBody,
   SlashCommandBuilder,
   SlashCommandOptionsOnlyBuilder,
   SlashCommandSubcommandsOnlyBuilder,
-  ChatInputCommandInteraction,
 } from "discord.js";
 
 /** Keuzemogelijkheid voor een slash-commando. */
@@ -17,4 +17,8 @@ export interface Command {
   execute(interaction: ChatInputCommandInteraction): Promise<void> | void;
   /** De JSON-variant die naar de Discord API gestuurd wordt bij registratie. */
   toJSON(): RESTPostAPIApplicationCommandsJSONBody;
+  /** Optionele cooldown in seconden per gebruiker. */
+  cooldown?: number;
+  /** Alleen beschikbaar binnen een guild (server). */
+  guildOnly?: boolean;
 }

@@ -1,36 +1,29 @@
 import { REST, Routes } from "discord.js";
-import { commands } from "./commands/index.js";
+import { config } from "./config/index.js";
+import { loadCommands } from "./core/loaders/loadCommands.js";
+import { logger } from "./core/utils/logger.js";
 
-const token = process.env.DISCORD_TOKEN;
-const clientId = process.env.CLIENT_ID;
-const guildId = process.env.GUILD_ID;
+async function deploy(): Promise<void> {
+  const commands = await loadCommands();
+  const commandJson = [...commands.values()].map((command) => command.toJSON());
 
-if (!token || !clientId || !guildId) {
-  console.error(
-    "DISCORD_TOKEN, CLIENT_ID en GUILD_ID zijn vereist in het .env bestand."
+  logger.info(
+    "Registreer " +
+      commandJson.length +
+      " slash-commando's voor guild " +
+      config.guildId +
+      "...",
   );
-  process.exit(1);
+
+  const rest = new REST().setToken(config.token);
+  await rest.put(Routes.applicationGuildCommands(config.clientId, config.guildId), {
+    body: commandJson,
+  });
+
+  logger.info("Slash-commando's succesvol geregistreerd! ✅");
 }
 
-// Omzetten naar de JSON-vorm die de Discord API verwacht.
-const commandJson = [...commands.values()].map((command) => command.toJSON());
-
-const rest = new REST().setToken(token);
-
-try {
-  console.log(
-    `Registreer ${commandJson.length} slash-commando's voor guild ${guildId}...`
-  );
-
-  // Guild-commando's verschijnen direct (ideaal voor development);
-  // vervang "guild" met de globale Route voor een wereldwijde registratie.
-  await rest.put(
-    Routes.applicationGuildCommands(clientId, guildId),
-    { body: commandJson }
-  );
-
-  console.log("Slash-commando's succesvol geregistreerd! ✅");
-} catch (error) {
-  console.error("Fout bij het registreren van commando's:", error);
+deploy().catch((error) => {
+  logger.error("Fout bij het registreren van commando's:", error);
   process.exit(1);
-}
+});

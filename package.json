@@ -8,7 +8,10 @@
     "start": "bun run src/index.ts",
     "dev": "bun --watch src/index.ts",
     "typecheck": "tsc --noEmit",
-    "deploy-commands": "bun run src/deploy-commands.ts"
+    "deploy-commands": "bun run src/deploy-commands.ts",
+    "format": "biome format --write .",
+    "lint": "biome check .",
+    "test": "bun test"
   },
   "keywords": [
     "discord",
@@ -23,7 +26,8 @@
   "license": "MIT",
   "devDependencies": {
     "typescript": "^5.5.4",
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@biomejs/biome": "^2.5.8"
   },
   "dependencies": {
     "discord.js": "^14.15.3"

@@ -1,8 +1,5 @@
-import {
-  SlashCommandBuilder,
-  type ChatInputCommandInteraction,
-} from "discord.js";
-import type { Command } from "../types.js";
+import { type ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
+import type { Command } from "../../types/Command.js";
 
 export const ping: Command = {
   data: new SlashCommandBuilder()
@@ -14,9 +11,10 @@ export const ping: Command = {
       content: "🏓 Pong!",
       fetchReply: true,
     });
-
     await interaction.editReply(
-      `🏓 Pong! (Latency: ${sent.createdTimestamp - interaction.createdTimestamp}ms)`
+      "🏓 Pong! (Latency: " +
+        (sent.createdTimestamp - interaction.createdTimestamp) +
+        "ms)",
     );
   },
 
@@ -24,3 +22,5 @@ export const ping: Command = {
     return this.data.toJSON();
   },
 };
+
+export default ping;
